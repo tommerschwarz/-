@@ -18,10 +18,11 @@ def main():
             alns = generate_pileup()
     """
     ref_fa = sys.argv[1]
-    reads  = sys.argv[2]
+#    reads  = sys.argv[2]
     ref_seq = load_reference(ref_fa)
+    print(list(ref_seq.genome.keys())[0])
 #    align_reads(reads, ref_seq)
-#    ref_seq.index_kmers()
+    ref_seq.index_BWT(500)
 
 # TODO: add option for unpaired reads
 def align_reads(read_fn, ref_genome):
@@ -48,21 +49,25 @@ def align_reads(read_fn, ref_genome):
 
 def load_reference(ref_fn):
     fasta = open(ref_fn, 'r')
+    # read the fasta file and append ids and seqs to lists
     seqfa = []
     seqid = []
     seq = ""
     fline = False
     for line in fasta:
-        if line.startswith(">"):
-            seqid.append(line.strip()[1:])
+        if line.startswith(">"):              # lines with ids
+            seqid.append(line.strip()[1:])    # save id
             if fline:
-                seqfa.append(seq)
-                seq = ""
+                seqfa.append(seq)             # save seq and
+                seq = ""                      # start a new seq
             fline = True
-        else:
+        else:                                 # lines with sequence
             seq += line.strip()
     seqfa.append(seq)
-    for i in range(len(seqid)):
+    # initialize the genome object
+    genome = gm.genome(seqid[0],seqfa[0])
+    # add other sequences, if any
+    for i in range(1,len(seqid)):
         genome = gm.genome.add_sequence(seqid[i],seqfa[i])
     print("Reference genome loaded.")
     print("         total length: {}".format(genome.length))

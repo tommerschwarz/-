@@ -6,6 +6,7 @@ class genome():
     kmers = None
     genome = {}
 
+
     def __init__(self, ids, seqs):
         self.genome[ids] = seqs
         self.length = len(seqs)
@@ -35,11 +36,44 @@ class genome():
     		sequence.append(self.genome[chrom])
     	return sequence
 
-    def index_BWT(self):
+    def index_BWT(self,k): # include the kmer size
+        fastaidx = open(list(self.genome.keys())[0] + ".aln", "w")
+
         sequence = self.getSequence()
-        sequence = sequence + "$"
+        sequence = sequence[0] + "$"  # for now its just a single chrom
+        L = len(sequence) # save the length of reference
+
+        # generate the index from kmers
         index_m = []
-        for i in range(len(sequence)''):
-            index_m.append(sequence[i:] + sequence [:i])
-            print(index_m[i])
+        for i in range(L):
+            if i < L-k+1:
+                index_m.append((sequence[i:i+k],i))
+            else:
+                index_m.append((sequence[i:] + sequence[:i-(L-k)],i))
+
+        index_m.sort()      # this is the critical step!
+
+        index = ""
+        for kmer in index_m:
+            if kmer[1] == 0:
+                index += "$"   # remember that before the first is the last
+            else:
+                index += sequence[kmer[1]-1]
+
+        s = 1               # keep track of the position of letters each "s"
+        count = {"A":0,"C":0,"G":0,"T":0}
+        for nt in index:
+            if nt != "$":
+                count[nt] += 1
+                if count[nt] % s == 0:
+                    fastaidx.write('{} {}\n'.format(nt,str(count[nt])))
+                else:                
+                    fastaidx.write(nt + "\n")
+            else:
+                fastaidx.write(nt + "\n")
+
+        # try to reconstruct the original sequence (just to test if the index is correct!)
+        seq = "$"
+#        for i in range(L):
+#            for j in 
 
