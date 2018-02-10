@@ -10,13 +10,13 @@ import pileup  as plp
 def main():
     """Main entry point for the script."""
     ref_fa = sys.argv[1]
-    reads  = sys.argv[2]
-    ref_seq = load_reference(ref_fa)
-
+#    reads  = sys.argv[2]
+#    ref_seq = load_reference(ref_fa)
+    print(u.unpermute_BWT(ref_fa))
 #    align_reads(reads, ref_seq) 
-    plp.pileup(reads, ref_seq)
-#    ref_seq.index_BWT(2000)
-    
+#    plp.pileup(reads, ref_seq)
+#    ref_seq.index_BWT(100)
+
 
 # TODO: add option for unpaired reads
 def align_reads(read_fn, ref_genome):

@@ -37,7 +37,7 @@ class genome():
     	return sequence
 
     def index_BWT(self,k): # include the kmer size
-        fastaidx = open(list(self.genome.keys())[0] + ".aln", "w")
+        fastaidx = open(list(self.genome.keys())[0] + ".idx", "w")
 
         sequence = self.getSequence()
         sequence = sequence[0] + "$"  # for now its just a single chrom
@@ -71,9 +71,3 @@ class genome():
                     fastaidx.write(nt + "\n")
             else:
                 fastaidx.write(nt + "\n")
-
-        # try to reconstruct the original sequence (just to test if the index is correct!)
-        seq = "$"
-#        for i in range(L):
-#            for j in 
-
