@@ -61,15 +61,15 @@ def unpermute_BWT(index,count):
 
 def debug_BWT_index(index,count):
     debug_idx = open("index_debug.idx", "w")
-    debug_idx.write("{}\t{} --- {} {}\n".format(0,"$",index[0][0],index[0][1]))
+    debug_idx.write(    "{}\t{} --- {} {} {}\n".format(0,"$",index[0][0],index[0][1],index[0][2]))
     for i in range(1,count["A"]+1):
-        debug_idx.write("{}\t{} --- {} {}\n".format(i,"A",index[i][0],index[i][1]))
+        debug_idx.write("{}\t{} --- {} {} {}\n".format(i,"A",index                                 [i][0],index                                 [i][1],index[i][2]))
     for i in range(1,count["C"]+1):
-        debug_idx.write("{}\t{} --- {} {}\n".format(i,"C",index[count["A"]+i][0],index[count["A"]+i][1]))
+        debug_idx.write("{}\t{} --- {} {} {}\n".format(i,"C",index[count["A"]                      +i][0],index[count["A"]                      +i][1],index[i][2]))
     for i in range(1,count["G"]+1):
-        debug_idx.write("{}\t{} --- {} {}\n".format(i,"G",index[count["A"]+count["C"]+i][0],index[count["A"]+count["C"]+i][1]))
+        debug_idx.write("{}\t{} --- {} {} {}\n".format(i,"G",index[count["A"]+count["C"]           +i][0],index[count["A"]+count["C"]           +i][1],index[i][2]))
     for i in range(1,count["T"]+1):
-        debug_idx.write("{}\t{} --- {} {}\n".format(i,"T",index[count["A"]+count["C"]+count["G"]+i][0],index[count["A"]+count["C"]+count["G"]+i][1]))
+        debug_idx.write("{}\t{} --- {} {} {}\n".format(i,"T",index[count["A"]+count["C"]+count["G"]+i][0],index[count["A"]+count["C"]+count["G"]+i][1],index[i][2]))
 
 
 def pretty_print_aligned_reads_with_ref(genome_oriented_reads, read_alignments, ref, read_length=50,

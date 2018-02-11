@@ -10,16 +10,18 @@ import pileup  as plp
 def main():
     """Main entry point for the script."""
 #    ref_fa = sys.argv[1]
-    ref_ix = sys.argv[1]
-    reads  = sys.argv[2]
-#    ref_seq = load_reference(ref_fa)
-#    ref_seq.index_BWT(450)
-#    plp.pileup(reads, ref_seq)
+    ref_ix = sys.argv[1]                   # \
+    reads  = sys.argv[2]                   #  \
+#    ref_seq = load_reference(ref_fa)      #   \
+#    ref_seq.index_BWT(1000)               #    \
+    align_reads(reads, ref_ix)             #    / for BWT alignment
+#    index,count = load_index(ref_ix)      #   /
+#    u.debug_BWT_index(index,count)        #  /
+#    print(u.unpermute_BWT(index,count))   # /
+
 #    align_reads(reads, ref_seq)
-    align_reads(reads, ref_ix)
-#    index,count = load_index(ref_ix)   # for BWT alignment
-#    u.debug_BWT_index(index,count)
-#    print(u.unpermute_BWT(index,count))
+#    plp.pileup(reads, ref_seq)
+
 
 # TODO: add option for unpaired reads
 def align_reads(read_fn, ref_genome):
@@ -62,12 +64,12 @@ def load_index(idxf):
     j = 0
     for i in idx:
         entry = i.strip().split(" ")
-        index.append((entry[0],int(entry[1])))
+        index.append((entry[0],int(entry[1]),int(entry[2])))
         count[index[j][0]] = index[j][1]
         j += 1
     # report progress
     print("Genome index loaded.")
-    print("         total length: {}".format(len(index)))
+    print("         total length: {}".format(len(index)-1))
     return index, count
 
 def load_reference(ref_fn):
