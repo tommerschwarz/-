@@ -9,14 +9,17 @@ import pileup  as plp
 
 def main():
     """Main entry point for the script."""
-    ref_fa = sys.argv[1]
-#    reads  = sys.argv[2]
+#    ref_fa = sys.argv[1]
+    ref_ix = sys.argv[1]
+    reads  = sys.argv[2]
 #    ref_seq = load_reference(ref_fa)
-    print(u.unpermute_BWT(ref_fa))
-#    align_reads(reads, ref_seq) 
+#    ref_seq.index_BWT(450)
 #    plp.pileup(reads, ref_seq)
-#    ref_seq.index_BWT(100)
-
+#    align_reads(reads, ref_seq)
+    align_reads(reads, ref_ix)
+#    index,count = load_index(ref_ix)   # for BWT alignment
+#    u.debug_BWT_index(index,count)
+#    print(u.unpermute_BWT(index,count))
 
 # TODO: add option for unpaired reads
 def align_reads(read_fn, ref_genome):
@@ -27,6 +30,7 @@ def align_reads(read_fn, ref_genome):
     # open "fastq" file to align, and "bam" to output
     fastq   = open(read_fn, 'r')
     mapped  = open(read_fn + ".aln", "w")
+    index,count = load_index(ref_genome)   # for BWT alignment
 
     read_id = 0
     for read in fastq:
@@ -39,7 +43,8 @@ def align_reads(read_fn, ref_genome):
             read_2 = rd.read(str(read_id)+"_2", reads_raw[1])
 
             # align and output
-            aln_reads = aln.align_trivial([read_1,read_2], ref_genome)
+            aln_reads = aln.align_bwt([read_1,read_2], index, count) # BWT
+#            aln_reads = aln.align_trivial([read_1,read_2], ref_genome) # trivial
             for alignment in aln_reads:
                 mapped.write( alignment.summary() +"\n")
 
@@ -49,6 +54,21 @@ def align_reads(read_fn, ref_genome):
 
     mapped.close()
     return 1
+
+def load_index(idxf):
+    idx = open(idxf, "r")
+    index = []
+    count = {"$":0,"A":0,"C":0,"G":0,"T":0}
+    j = 0
+    for i in idx:
+        entry = i.strip().split(" ")
+        index.append((entry[0],int(entry[1])))
+        count[index[j][0]] = index[j][1]
+        j += 1
+    # report progress
+    print("Genome index loaded.")
+    print("         total length: {}".format(len(index)))
+    return index, count
 
 def load_reference(ref_fn):
     fasta = open(ref_fn, 'r')

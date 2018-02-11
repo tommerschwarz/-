@@ -53,21 +53,27 @@ class genome():
 
         index_m.sort()      # this is the critical step!
 
+        # extract las column from matrix (equivalent to sequence[pos(kmer[0])-1])
         index = ""
         for kmer in index_m:
-            if kmer[1] == 0:
-                index += "$"   # remember that before the first is the last
-            else:
-                index += sequence[kmer[1]-1]
+            index += sequence[kmer[1]-1]
+        print(sequence[0-1])
 
+        count = {"$":0,"A":0,"C":0,"G":0,"T":0}
+        for nt in index:
+            count[nt] += 1
+            fastaidx.write('{} {}\n'.format(nt,str(count[nt])))
+
+"""
         s = 1               # keep track of the position of letters each "s"
         count = {"A":0,"C":0,"G":0,"T":0}
         for nt in index:
             if nt != "$":
                 count[nt] += 1
-                if count[nt] % s == 0:
+                if count[nt] % s == 0:    # report counts every "s" nt only
                     fastaidx.write('{} {}\n'.format(nt,str(count[nt])))
                 else:                
                     fastaidx.write(nt + "\n")
             else:
                 fastaidx.write(nt + "\n")
+"""

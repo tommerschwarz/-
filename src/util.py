@@ -40,38 +40,37 @@ def NumberToPattern(index, k):
     PrefixPattern = NumberToPattern(prefixIndex,k-1)
     return PrefixPattern + symbol
 
-def unpermute_BWT(index):
-        # try to reconstruct the original sequence (just to test if the index is correct!)
-        idx = open(index, "r")
-        index = []
-        nt = ["A","C","G","T"]
-        count = {"A":0,"C":0,"G":0,"T":0}
-        j = 0
-        for i in idx:
-            entry = i.strip().split(" ")
-            if entry[0] != "$":
-                index.append((entry[0],int(entry[1])))
-                count[index[j][0]] = index[j][1]
+def unpermute_BWT(index,count):
+    # reconstruct the original sequence (just to test if the index is correct!)
+    # read the index
+    nt = ["A","C","G","T"]
+    # start unpermuting from the first position
+    seq = index[0][0]
+    pos = index[0][1]
+    while seq[0] != "$":         # until the first character
+        cpos = 0
+        for n in nt:
+            if n != seq[0]:
+                cpos += count[n] # advance first column index per nt
             else:
-                index.append((entry[0]))
-            j += 1
+                break
+        cpos += pos              # advance to the position of the nt
+        seq = index[cpos][0] + seq
+        pos = index[cpos][1]
+    return seq[1:]               # omit initial '$'
 
-        seq = index[0][0]
-        pos = index[0][1]
-        exit = 0
-        while seq[0] != "$":
-            cpos = 0
-            for n in nt:
-                if n != seq[0]:
-                    cpos += count[n]
-                else:
-                    break
-            cpos += pos
-            seq = index[cpos][0] + seq
-            if index[cpos][0] != "$":
-                pos = index[cpos][1]
+def debug_BWT_index(index,count):
+    debug_idx = open("index_debug.idx", "w")
+    debug_idx.write("{}\t{} --- {} {}\n".format(0,"$",index[0][0],index[0][1]))
+    for i in range(1,count["A"]+1):
+        debug_idx.write("{}\t{} --- {} {}\n".format(i,"A",index[i][0],index[i][1]))
+    for i in range(1,count["C"]+1):
+        debug_idx.write("{}\t{} --- {} {}\n".format(i,"C",index[count["A"]+i][0],index[count["A"]+i][1]))
+    for i in range(1,count["G"]+1):
+        debug_idx.write("{}\t{} --- {} {}\n".format(i,"G",index[count["A"]+count["C"]+i][0],index[count["A"]+count["C"]+i][1]))
+    for i in range(1,count["T"]+1):
+        debug_idx.write("{}\t{} --- {} {}\n".format(i,"T",index[count["A"]+count["C"]+count["G"]+i][0],index[count["A"]+count["C"]+count["G"]+i][1]))
 
-        return seq[1:]
 
 def pretty_print_aligned_reads_with_ref(genome_oriented_reads, read_alignments, ref, read_length=50,
                                         line_length=100, read_sep=100, buffer=30):
