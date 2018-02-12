@@ -10,6 +10,8 @@ class read():
     position = "."
     strand   = "."
     mismatch = ["."]
+# TODO: insert del
+# TODO: insert ins
 
     pair_position = "."
     pair_strand   = "."
