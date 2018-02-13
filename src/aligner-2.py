@@ -85,10 +85,10 @@ def align_trivial(reads, genome): # takes a list with two reads, and a ref genom
 def HammingDistance( read, reference , max_mis):
     positions = []
     for i in range(len(read)):
-        if len(positions) > max_mis:
-            return None
         if read[i] != reference[i]:
             positions.append(i)
+        if len(positions) > max_mis:
+            return None
     return positions
 
 def align_seeded(read, genome):
@@ -161,10 +161,7 @@ def align_bwt(reads, index, count):
         local_align(ref, read1)
         return
 
-        
-
 # TODO insert local alignment here... use best_aln[0 or 1]
-
     local_align(ref, read)
 
     # add to best alignments the information from the other end
