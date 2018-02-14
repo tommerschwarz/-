@@ -63,7 +63,7 @@ def pileup(aligns, ref_genome):
                         pileup_f.write(genome[j] +","+ don +","+ str(j) +"\n")
             depth = 0
             dom = 0
-        
+        print(len(reads))
         # reset variables or finish outputing
         if len(genome) > start + window:
             start += window

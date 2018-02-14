@@ -1,6 +1,5 @@
 """Script to find variants from a donor in NGS paired end reads."""
 import sys
-import numpy   as np
 import util    as u
 import read    as rd
 import genome  as gm
