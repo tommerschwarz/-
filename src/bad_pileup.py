@@ -1,10 +1,9 @@
 # pseudo pile-up
 
 
-reads = open('reads_hw2grad_M_1_chr_1.txt.aln', 'r')
 
 
-def pileup(reads):
+def pileup(reads, outfile):
     snps = {}
     ins = {}
     dels = {}
@@ -28,5 +27,13 @@ def pileup(reads):
                     ins[(str(actual_pos),line[0][val:val+line[6]])] = ins[(str(actual_pos),line[0][val:val+line[6]])] + 1
                 else:
                     ins[(str(actual_pos),line[0][val:val+line[6]])] = 1
+    outfile.write(">SNP\n")
+    for key in snps:
+        if snps[key] > 5:
+            outfile.write(key[1] + "," + key[0] + "\n")
 
-pileup(reads)
+
+
+reads = open('reads_hw2grad_M_1_chr_1.txt.aln', 'r')
+outfile = open('out', 'w')
+pileup(reads, outfile)
