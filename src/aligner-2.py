@@ -1,4 +1,3 @@
-import numpy as np
 import read
 import genome as gm
 import util as u
@@ -120,34 +119,32 @@ def align_bwt(reads, index, count, ref_seq):
             best_aln[i].aligned = True
             best_aln[i].position = aln
 
-###############
-    SNPs,ins,dels = 0,0,0
+    SNPs,ins,dels,pos = 0,0,0,0
     # if one end is not aligned, try local alignment within the expected region of the genome
     if   best_aln[0].aligned and not best_aln[1].aligned:
         eor1 = best_aln[0].position + len(best_aln[0].sequence)
         refe_sl = ref_seq[ eor1 + 75 : eor1 + 175 ]
         read_sl = best_aln[1].sequence if best_aln[0].strand == "-" else u.rev(best_aln[1].sequence)
-        SNPs,ins,dels = local_align(refe_sl, read_sl)
+        SNPs,ins,dels,pos = local_align(refe_sl, read_sl)
         if SNPs != 0:
             best_aln[1].mismatch  = SNPs
             best_aln[1].insertion = ins
             best_aln[1].deletion  = dels
-            best_aln[1].strand = "+" if best_aln[0].strand == "-" else "-"
-            best_aln[1].aligned = True
-            best_aln[1].position = None
+            best_aln[1].strand    = "+" if best_aln[0].strand == "-" else "-"
+            best_aln[1].aligned   = True
+            best_aln[1].position  = pos + eor1 + 75
     elif best_aln[1].aligned and not best_aln[0].aligned:
         eor1    = best_aln[1].position
         refe_sl = ref_seq[ eor1 - 175 : eor1 - 75 ]
         read_sl = best_aln[0].sequence if best_aln[1].strand == "-" else u.rev(best_aln[0].sequence)
-        SNPs,ins,dels = local_align(refe_sl, read_sl)
+        SNPs,ins,dels,pos = local_align(refe_sl, read_sl)
         if SNPs != 0:
             best_aln[0].mismatch  = SNPs
             best_aln[0].insertion = ins
             best_aln[0].deletion  = dels
-            best_aln[0].strand = "+" if best_aln[0].strand == "-" else "-"
-            best_aln[0].aligned = True
-            best_aln[0].position = None 
-###############
+            best_aln[0].strand    = "+" if best_aln[1].strand == "-" else "-"
+            best_aln[0].aligned   = True
+            best_aln[0].position  = pos + eor1 - 175
 
     # add to best alignments the information from the other end
     best_aln[0].pair_position = best_aln[1].position
@@ -181,9 +178,9 @@ def perfect_match_bwt(read, index, count):
         last = read[i]
 
         # search within range until match
-        while index[up][0] != last:
+        while index[up][0] != last and up < len(index)-1:
             up += 1
-        while index[dn][0] != last:
+        while index[dn][0] != last and up > 0:
             dn -= 1
 
         # move pointers to new position in index
@@ -225,11 +222,11 @@ def local_align(s1, s2):
             if (bt[i-1][j] == 0):
                 ins = -1
             else:
-                ins = -2
+                ins = -3
             if (bt[i][j-1] == 2):
                 dels = -1
             else:
-                dels = -2
+                dels = -3
             arr = [x[i-1][j] + ins, x[i-1][j-1] + t, x[i][j-1] + dels]
             x[i][j] = max(arr)
             if (arr.index(x[i][j]) == 1):
@@ -237,14 +234,8 @@ def local_align(s1, s2):
                     bt[i][j] = 1 #match
                 else:
                     bt[i][j] = 3 #mm
-                del_open = False
-                ins_open = False
+            else:
                 bt[i][j] = arr.index(x[i][j])
-            '''else:
-                if (bt[i][j] == 2):
-                    ins_open = True
-                else:
-                    del_open = True'''
                 
             if ((x[i][j] > max_val) & (j == b-1) & (i > b)):
                 max_val = x[i][j]
@@ -253,21 +244,20 @@ def local_align(s1, s2):
     
     i = max_i
     j = max_j
-    if (x[i][j] < 30):
+    if (x[i][j] < 0):
         return 0,0,0
 
     seq1 = ''
     seq2 = ''
     ins = {}
     dels = {}
-    snps = []
+    snps = {}
     num_match = 0
     num_ins = 0
     num_del = 0
     num_mm = 0
     p_ins = 0 # how many prior positions were insertions
     p_del = 0 # how many prior positions were deletions
-
 
     while ((j > 0) & (i > 0)):
         if (bt[i][j] == 1): # match
@@ -280,10 +270,10 @@ def local_align(s1, s2):
                 ins[j] = p_ins
                 p_ins = 0
             if (p_del > 0):
-                dels[j] = p_del
+                dels[j] = s1[i+1:i+p_del+1]
                 p_del = 0
         elif (bt[i][j] == 3): # SNP
-            snps.append(j-1)
+            snps[j-1] = s1[i-1]
             seq1 = s1[i-1].lower() + seq1
             seq2 = s2[j-1].lower() + seq2
             i = i - 1
@@ -293,7 +283,7 @@ def local_align(s1, s2):
                 ins[j] = p_ins
                 p_ins = 0
             if (p_del > 0):
-                ins[j] = p_del
+                dels[j] = s1[i+1:i+p_del+1]
                 p_del = 0
         elif (bt[i][j] == 2): # insertion
             p_ins = p_ins + 1
