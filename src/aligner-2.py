@@ -267,7 +267,7 @@ def local_align(s1, s2):
             j = j - 1
             num_match = num_match + 1
             if (p_ins > 0):
-                ins[j] = p_ins
+                ins[j] = s2[j+1:j+1+p_ins]
                 p_ins = 0
             if (p_del > 0):
                 dels[j] = s1[i+1:i+p_del+1]
@@ -280,7 +280,7 @@ def local_align(s1, s2):
             j = j - 1
             num_mm = num_mm + 1
             if (p_ins > 0):
-                ins[j] = p_ins
+                ins[j] = s2[j+1:j+1+p_ins]
                 p_ins = 0
             if (p_del > 0):
                 dels[j] = s1[i+1:i+p_del+1]
