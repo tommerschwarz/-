@@ -246,7 +246,7 @@ def local_align(s1, s2):
     
     i = max_i
     j = max_j
-    if (x[i][j] < 0):
+    if (x[i][j] < 35):
         return 0,0,0,0
 
     seq1 = ''
