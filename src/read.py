@@ -21,6 +21,17 @@ class read():
 
     def summary(self):
         """returns a string with a summary of the alignment of the read"""
+    # for mismatch
+        if self.mismatch != ["."] and len(self.mismatch)>0:
+            mism_p = []
+            mism_a = []
+            mismatches = self.mismatch.keys()
+            for msm in mismatches:
+                mism_p.append(           str(msm) )
+                mism_a.append( self.mismatch[msm] )
+        else:
+            mism_p = ["."]
+            mism_a = ["."]
     # for deletions
         if self.deletion != ["."] and len(self.deletion)>0:
             dels_p = []
@@ -47,10 +58,10 @@ class read():
         if self.mismatch == []:
             self.mismatch = ["."]
 
-        return '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(
+        return '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(
             self.sequence,self.read_id,
             self.strand,self.position,
-            ",".join(map(str, self.mismatch)),
-            ",".join(map(str, dels_p)),",".join(map(str, dels_a)),
-            ",".join(map(str, ins_p )),",".join(map(str, ins_a )),
+            ",".join(mism_p),",".join(mism_a),
+            ",".join(dels_p),",".join(dels_a),
+            ",".join( ins_p),",".join( ins_a),
             self.pair_strand,self.pair_position)

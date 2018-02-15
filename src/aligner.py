@@ -210,6 +210,10 @@ def local_align(s1, s2):
     gap = -2
     ins = -2
     dels = -1
+    del_open = False
+    ins_open = False
+
+    max_i,max_j = 0,0
 
     for i in range(1, a):
         for j in range(1, b):
@@ -217,6 +221,14 @@ def local_align(s1, s2):
                 t = match
             else:
                 t = mm
+            if (bt[i-1][j] == 0):
+                ins = -1
+            else:
+                ins = -3
+            if (bt[i][j-1] == 2):
+                dels = -1
+            else:
+                dels = -3
             arr = [x[i-1][j] + ins, x[i-1][j-1] + t, x[i][j-1] + dels]
             x[i][j] = max(arr)
             if (arr.index(x[i][j]) == 1):
@@ -226,6 +238,7 @@ def local_align(s1, s2):
                     bt[i][j] = 3 #mm
             else:
                 bt[i][j] = arr.index(x[i][j])
+                
             if ((x[i][j] > max_val) & (j == b-1) & (i > b)):
                 max_val = x[i][j]
                 max_i = i
@@ -233,21 +246,20 @@ def local_align(s1, s2):
     
     i = max_i
     j = max_j
-    if (x[i][j] < 43):
+    if (x[i][j] < 0):
         return 0,0,0,0
 
     seq1 = ''
     seq2 = ''
     ins = {}
     dels = {}
-    snps = []
+    snps = {}
     num_match = 0
     num_ins = 0
     num_del = 0
     num_mm = 0
     p_ins = 0 # how many prior positions were insertions
     p_del = 0 # how many prior positions were deletions
-
 
     while ((j > 0) & (i > 0)):
         if (bt[i][j] == 1): # match
@@ -257,23 +269,23 @@ def local_align(s1, s2):
             j = j - 1
             num_match = num_match + 1
             if (p_ins > 0):
-                ins[j] = p_ins
+                ins[j] = s2[j+1:j+1+p_ins]
                 p_ins = 0
             if (p_del > 0):
-                dels[j] = p_del
+                dels[j] = s1[i+1:i+p_del+1]
                 p_del = 0
         elif (bt[i][j] == 3): # SNP
-            snps.append(j-1)
+            snps[j-1] = s1[i-1]
             seq1 = s1[i-1].lower() + seq1
             seq2 = s2[j-1].lower() + seq2
             i = i - 1
             j = j - 1
             num_mm = num_mm + 1
             if (p_ins > 0):
-                ins[j] = p_ins
+                ins[j] = s2[j+1:j+1+p_ins]
                 p_ins = 0
             if (p_del > 0):
-                ins[j] = p_del
+                dels[j] = s1[i+1:i+p_del+1]
                 p_del = 0
         elif (bt[i][j] == 2): # insertion
             p_ins = p_ins + 1
